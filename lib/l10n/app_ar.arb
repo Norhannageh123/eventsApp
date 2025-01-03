@@ -62,5 +62,7 @@
     "register": "تسجيل حساب",
     "forget_password2" :" نسيت كلمة السر",
     "please_enter_event_title":"من فضلك قم بإدخال عنوان الحدث",
-    "please_enter_event_description": "من فضلك قم بإدخال وصف الحدث"
+    "please_enter_event_description": "من فضلك قم بإدخال وصف الحدث",
+    "no_favorite_events_found":" للأسف ! لا يوجد أي حدث مفضل ",
+    "no_events_found":"للأسف! لا يوجد أي حدث"
 }

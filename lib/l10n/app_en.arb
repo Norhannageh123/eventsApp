@@ -62,5 +62,7 @@
     "register": "Register",
     "forget_password2" :"Forget Password",
     "please_enter_event_title":"Please Enter Event Title",
-    "please_enter_event_description": "Please Enter Event Description"
+    "please_enter_event_description": "Please Enter Event Description",
+    "no_favorite_events_found":"Opps! No Favorite Events Found",
+    "no_events_found":"Opps! No Events Found"
 }

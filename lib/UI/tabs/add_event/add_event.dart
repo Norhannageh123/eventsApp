@@ -2,12 +2,18 @@ import 'package:evently_app/UI/tabs/add_event/add_event_widgets/custom_date_or_t
 import 'package:evently_app/UI/tabs/home_tab/home_widgets/tab_event_widget.dart';
 import 'package:evently_app/UI/tabs/tabs_widgets/custom_elevated_button.dart';
 import 'package:evently_app/UI/tabs/tabs_widgets/custom_text_field.dart';
+import 'package:evently_app/UI/tabs/tabs_widgets/toast.dart';
+import 'package:evently_app/firebase/event_model.dart';
+import 'package:evently_app/firebase/firebaseUtls.dart';
+import 'package:evently_app/providers/eventList_proider.dart';
 import 'package:evently_app/utls/app_colo.dart';
 import 'package:evently_app/utls/app_images.dart';
 import 'package:evently_app/utls/app_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class AddEvent extends StatefulWidget {
   const AddEvent({super.key});
@@ -27,8 +33,10 @@ class _AddEventState extends State<AddEvent> {
   var descriptionController=TextEditingController();//saveDesc
   String? selectedImage='';
   String? selectedEvent='';
+  late EventListProvider eventProvider=eventProvider;
   @override
   Widget build(BuildContext context) {
+      eventProvider=Provider.of<EventListProvider>(context);
     List<String> eventsNameList = [
       AppLocalizations.of(context)!.sport,
       AppLocalizations.of(context)!.birthday,
@@ -194,7 +202,7 @@ class _AddEventState extends State<AddEvent> {
                                 ? AppImages.calndreDarkIcon
                                 : AppImages.calnderLightIcon,
                         chooseDateOrTime:selectedDate==null?
-                            AppLocalizations.of(context)!.choose_date:formatDate,
+                            AppLocalizations.of(context)!.choose_date:DateFormat("dd/MM/yyyy").format(selectedDate!),
                         chooseDateOrTimeClicked: chooseDate,
                         textDateOrTime:
                             AppLocalizations.of(context)!.event_date),
@@ -283,6 +291,20 @@ class _AddEventState extends State<AddEvent> {
  void  addEvent(){
      if(formKey.currentState?.validate()==true){
             //add event
+            Event event=Event(
+              eventTitle: titleController.text,
+               eventDescription: descriptionController.text,
+                eventImage: selectedImage!,
+                 eventName: selectedEvent!,
+                  eventDate: selectedDate!,
+                   eventTime: formatTime,
+                   );
+            FirebaseUtls.addEventToFireStore(event).timeout(const Duration(milliseconds: 500),
+            onTimeout: (){
+                ToastHelper.showSuccessToast("event added Successfully");
+            });
+             eventProvider.getAllEvents();
+            Navigator.of(context).pop();
      }
   }
   chooseDate() async{
@@ -293,7 +315,9 @@ class _AddEventState extends State<AddEvent> {
       lastDate: DateTime.now().add(const Duration(days: 730)),
        );
        selectedDate=chooseDate;
-       formatDate=DateFormat("dd/MM/yyyy").format(selectedDate!);
+        setState(() {
+         
+       });
   }
   chooseTime()async {
      var chooseTime=await showTimePicker(
@@ -302,5 +326,9 @@ class _AddEventState extends State<AddEvent> {
        );
        selectedTime=chooseTime;
        formatTime=selectedTime!.format(context);
+       setState(() {
+         
+       });
   }
+      
 }

@@ -1,11 +1,13 @@
 import 'package:evently_app/UI/tabs/home_tab/home_widgets/eventCard.dart';
 import 'package:evently_app/UI/tabs/home_tab/home_widgets/tab_event_widget.dart';
+import 'package:evently_app/providers/eventList_proider.dart';
 import 'package:evently_app/utls/app_colo.dart';
 import 'package:evently_app/utls/app_images.dart';
 import 'package:evently_app/utls/app_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -15,24 +17,15 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  int selectedIndex = 0;
-
+ 
+  
   @override
   Widget build(BuildContext context) {
-  
-    //final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    List<String> eventsNameList = [
-      AppLocalizations.of(context)!.all,
-      AppLocalizations.of(context)!.sport,
-      AppLocalizations.of(context)!.birthday,
-      AppLocalizations.of(context)!.meeting,
-      AppLocalizations.of(context)!.gaming,
-      AppLocalizations.of(context)!.work_shop,
-      AppLocalizations.of(context)!.book_club,
-      AppLocalizations.of(context)!.exhibition,
-      AppLocalizations.of(context)!.holiday,
-      AppLocalizations.of(context)!.eating,
-    ];
+     var eventListProvide = Provider.of<EventListProvider>(context);
+     eventListProvide.getEventNameList(context);
+  if (eventListProvide.eventList.isEmpty) {
+    eventListProvide.getAllEvents();
+  }
     TextStyle textstyleDark = Theme.of(context).brightness == Brightness.dark
     ? AppStyle.black16Bold: AppStyle.blue16bold;
     var height = MediaQuery.of(context).size.height;
@@ -82,7 +75,7 @@ class _HomeTabState extends State<HomeTab> {
             ],
           ),
         ),
-        body: Column(
+        body:Column(
           children: [
             Container(
               padding: EdgeInsets.symmetric(horizontal: width * 0.04),
@@ -108,11 +101,10 @@ class _HomeTabState extends State<HomeTab> {
                   ),
                   SizedBox(height: height * 0.02),
                   DefaultTabController(
-                    length: eventsNameList.length,
+                    length: eventListProvide.eventNameList.length,
                     child: TabBar(
                       onTap: (index) {
-                        selectedIndex = index;
-                        setState(() {});
+                       eventListProvide.getSelectedIndex(index);
                       },
                       tabAlignment: TabAlignment.start,
                       indicatorColor: AppColor.transparentColor,
@@ -120,34 +112,42 @@ class _HomeTabState extends State<HomeTab> {
                       labelPadding:
                           EdgeInsets.symmetric(horizontal: width * 0.01),
                       isScrollable: true,
-                      tabs: eventsNameList.map((eventName) {
+                      tabs:eventListProvide.eventNameList.map((eventName) {
                         return TabEventWidget(
                           styleEventDarkSelected:AppStyle.white16Medium ,
                           styleEventDarkUnSelected: AppStyle.white16Medium, 
                           styleEventLightSelected:AppStyle.blue16Medium , 
                           styleEventLightUnSelected:AppStyle.white16Medium , 
-
+        
                           selectedEventDark: AppColor.babyBlueColor,
                           selectedEventLight: AppColor.whiteColor,
                             isSelected:
-                                selectedIndex == eventsNameList.indexOf(eventName),
+                               eventListProvide.selectedIndex ==eventListProvide.eventNameList.indexOf(eventName),
                             eventName: eventName);
                       }).toList(),
                     ),
                   ),
                 ],
               ),
-      
+              
               
             ),
-      
+              
             Expanded(
-                    child:ListView.builder(
+                    child: eventListProvide.filtereventList.isEmpty?
+                    Center(child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(AppLocalizations.of(context)!.no_events_found,style:Theme.of(context).brightness==Brightness.dark?AppStyle.white16bold:AppStyle.black16Bold),
+                        const Icon(Icons.sentiment_dissatisfied,size:40,color:AppColor.redColor),
+                      ],
+                    ),):
+                    ListView.builder(
                       itemBuilder: (BuildContext context, int index) {
-                           return const EventCard();
+                           return  EventCard(event:eventListProvide.filtereventList[index],);
                         },
-                        itemCount: 10,
-      
+                        itemCount:eventListProvide.filtereventList.length,
+              
                     ),
                   ),
           ],
@@ -155,4 +155,5 @@ class _HomeTabState extends State<HomeTab> {
       ),
     );
   }
+ 
 }

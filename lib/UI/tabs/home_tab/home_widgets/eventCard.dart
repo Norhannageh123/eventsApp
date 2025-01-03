@@ -1,15 +1,20 @@
+import 'package:evently_app/firebase/event_model.dart';
+import 'package:evently_app/providers/eventList_proider.dart';
 import 'package:evently_app/utls/app_colo.dart';
 import 'package:evently_app/utls/app_images.dart';
 import 'package:evently_app/utls/app_style.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class EventCard extends StatelessWidget {
-  const EventCard({super.key});
-
+  EventCard({super.key,required this.event});
+  Event event;
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+    var eventListProvider=Provider.of<EventListProvider>(context);
     Color containerBG = Theme.of(context).brightness == Brightness.dark
         ? AppColor.primaryDark
         : AppColor.whiteColor;
@@ -17,8 +22,8 @@ class EventCard extends StatelessWidget {
         ? AppStyle.white16Medium
         : AppStyle.black16Medium;
     String imageDark = Theme.of(context).brightness == Brightness.dark
-        ? AppImages.birthdayImgDark
-        : AppImages.birthdayImgLight;
+        ? event.eventImage
+        : event.eventImage;
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: width * 0.04,
@@ -57,11 +62,11 @@ class EventCard extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    "22",
+                    '${event.eventDate.day}',
                     style: AppStyle.blue20bold,
                   ),
                   Text(
-                    "Dec",
+                       DateFormat('MMM').format(event.eventDate),
                     style: AppStyle.blue20bold,
                   )
                 ],
@@ -83,12 +88,18 @@ class EventCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "This is a birthday Party",
+                    event.eventTitle,
                     style: textstyleDark,
                   ),
-                  Image.asset(
-                    AppImages.heart,
-                    color: AppColor.babyBlueColor,
+                  InkWell(
+                    onTap: (){
+                      eventListProvider.updateEventFavorite(event);
+                    },
+                    child: event.isFavorite==true?Image.asset(AppImages.heartFill,color:AppColor.babyBlueColor):
+                    Image.asset(
+                      AppImages.heart,
+                      color: AppColor.babyBlueColor,
+                    ),
                   ),
                 ],
               ),
